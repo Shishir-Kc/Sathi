@@ -11,7 +11,8 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
-from decouple import Config
+from decouple import config
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -21,12 +22,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = Config('SECRET_KEY')
+SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -41,6 +42,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'Validation',
     'corsheaders',
+    'rest_framework_simplejwt',
+
 ]
 
 
@@ -56,10 +59,32 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'Sathi_Backend.urls'
+
+
+
+"""
+    Jwt config 
+
+
+"""
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES':(
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+
+    )
+}
+
+SIMPLE_JWT = {
+    'ACESS_TOKEN_LIFETIME':timedelta(minutes=10),
+    'REFRESS_TOKEN_LIFETIME':timedelta(days=2),
+    'ROTATE_REFRESS_TOKEN':True,
+    'BLACKLIST_AFTER_ROTATION':True,
+
+}
 
 TEMPLATES = [
     {
@@ -79,14 +104,26 @@ TEMPLATES = [
 WSGI_APPLICATION = 'Sathi_Backend.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
+"""
+
+    PostGress SQL Data Base
+
+
+"""
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'postgres',
+        'USER': config('USER_NAME'),
+        'PASSWORD': config("PASSWORD"),
+        'HOST': config('HOST'),
+        'PORT': config('PORT'),
+        'OPTIONS': {
+            'sslmode': 'require',
+        }
     }
+    
 }
 
 
@@ -137,10 +174,4 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 """
 
-GROQ_API = Config('GROQ_API')
-
-CORS_ALLOWED_ORIGINS = [
-    "http://127.0.0.1:9001",
-    "*",
-]
-CORS_ALLOW_ALL_ORIGINS = True
+GROQ_API = config('GROQ_API')
