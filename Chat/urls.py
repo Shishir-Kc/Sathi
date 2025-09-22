@@ -3,6 +3,6 @@ from .views import Chat
 app_name = "Chat"
 
 urlpatterns = [
-    path('sky/text/',Chat.as_view()),
+    path('sky/text/',Chat),
 
 ]
