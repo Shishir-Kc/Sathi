@@ -6,7 +6,6 @@
     Ai related Task will be done here ! 
 
 """
-from click import prompt
 from fastapi import FastAPI
 from Generate_text import Generate_text
 from pydantic import BaseModel
