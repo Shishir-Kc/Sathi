@@ -7,14 +7,24 @@
 
 """
 from fastapi import FastAPI
-from Generate_text import Generate_text
+from Generate_text import generate_text
 from pydantic import BaseModel
+from BUCKET import upload_to_bucket
+# import mimetypes
+import base64
+
 """
     preparing for expected json data
 
 """
 class Chat(BaseModel):
     prompt:str
+
+class Image_Upload(BaseModel):
+    filename:str
+    file_content:str
+    file_type:str
+
 
 app = FastAPI()
 
@@ -41,7 +51,16 @@ async def hello():
 """
 @app.post('/chat/')
 async def Chat(data: Chat):
-    response = await Generate_text(data.prompt)
+    response = await generate_text(data.prompt)
     return {
         'response':response
     }
+
+@app.post('/upload/')
+async def Upload_image(data:Image_Upload):
+    print("payload Recived")
+    file_name =data.filename
+    file_bytes = base64.b64decode(data.file_content)
+    response = await upload_to_bucket(bucket_name ="images",file_name = file_name,file_bytes = file_bytes,file_type=data.file_type)
+    
+    return response
