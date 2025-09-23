@@ -7,12 +7,14 @@ import requests
 def users(request):
     for i in Sathi_User.objects.all():
         print(i.first_name)
+    data = Sathi_User.objects.filter(username = 'mrkc')
+    print(data)
+
     return Response(
         {
             'message':'Hello ! '
         }
     )
-
 
 @api_view(['Get'])
 def get_content(request):
@@ -22,7 +24,6 @@ def get_content(request):
     return Response({
         'data':data,
     })
-
 
 
 
