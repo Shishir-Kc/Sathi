@@ -3,7 +3,7 @@ from decouple import config
 import asyncio
 
 client = Groq(api_key=config('GROQ_API'))
-async def Generate_text(prompt) -> str:
+async def generate_text(prompt) -> str:
     response = " "
     completion = client.chat.completions.create(
     model="openai/gpt-oss-120b",
@@ -30,6 +30,6 @@ async def Generate_text(prompt) -> str:
 
 if __name__ == "__main__":
    prompt = input('=> ')
-   response = asyncio.run(Generate_text(prompt))
+   response = asyncio.run(generate_text(prompt))
    print("==============================================")
    print(response)
