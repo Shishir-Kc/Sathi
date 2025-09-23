@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>File Upload</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: #f5f5f5;
+    }
+    .upload-box {
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      text-align: center;
+      width: 300px;
+    }
+    input[type="file"] { margin: 10px 0; }
+    button {
+      padding: 8px 16px;
+      border: none;
+      background: #007bff;
+      color: white;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover { background: #0056b3; }
+    .response {
+      margin-top: 15px;
+      font-size: 14px;
+      word-break: break-word;
+    }
+  </style>
+</head>
+<body>
+  <div class="upload-box">
+    <h2>Upload File</h2>
+    <input type="file" id="fileInput" />
+    <br />
+    <button onclick="uploadFile()">Upload</button>
+    <div class="response" id="responseBox"></div>
+  </div>
+
+  <script>
+    const JWT_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU4NjMxODg2LCJpYXQiOjE3NTg2MzE1ODYsImp0aSI6IjEzNWY3MGVmYTI5MTQyODZiYzg3ZWJhZTlhODhmMGI0IiwidXNlcl9pZCI6ImU5YjI4NDJlLWM5ODMtNGFkMy05YzAwLWM0YTBlYThkNzVjMiJ9.SxW1i_hQdEaGxQh1eu7JdH4zhvwey5ef_ghao_Ao5s0"; // your token here
+
+    async function uploadFile() {
+      const fileInput = document.getElementById("fileInput");
+      const responseBox = document.getElementById("responseBox");
+
+      if (fileInput.files.length === 0) {
+        responseBox.innerText = "Please select a file.";
+        return;
+      }
+
+      const file = fileInput.files[0];
+      const formData = new FormData();
+      formData.append("file", file);
+
+      try {
+        const res = await fetch("http://127.0.0.1:8000/api/chat/V1/upload/", {
+          method: "POST",
+          headers: {
+            "Authorization": "Bearer " + JWT_TOKEN
+          },
+          body: formData,
+          redirect: "follow"
+        });
+
+        let data;
+        const text = await res.text();
+        try {
+          data = JSON.parse(text);
+        } catch {
+          data = { raw: text };
+        }
+
+        responseBox.innerText = JSON.stringify(data, null, 2);
+      } catch (err) {
+        responseBox.innerText = "Error: " + err.message;
+      }
+    }
+  </script>
+</body>
+</html>
