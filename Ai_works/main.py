@@ -6,11 +6,11 @@
     Ai related Task will be done here ! 
 
 """
-from fastapi import FastAPI
+from fastapi import FastAPI,Depends
 from Generate_text import generate_text
 from pydantic import BaseModel
 from BUCKET import upload_to_bucket
-# import mimetypes
+from Authentication import verify_jwt
 import base64
 
 """
@@ -50,14 +50,14 @@ async def hello():
 
 """
 @app.post('/chat/')
-async def Chat(data: Chat):
+async def Chat(data: Chat,user=Depends(verify_jwt)):
     response = await generate_text(data.prompt)
     return {
         'response':response
     }
 
 @app.post('/upload/')
-async def Upload_image(data:Image_Upload):
+async def Upload_image(data:Image_Upload,user=Depends(verify_jwt)):
     print("payload Recived")
     file_name =data.filename
     file_bytes = base64.b64decode(data.file_content)

@@ -13,10 +13,13 @@ import uuid
 def Chat(request):
         
         prompt = request.data.get('prompt')
+        auth_header = request.META.get("HTTP_AUTHORIZATION")
         payload = {"prompt": prompt}
+        print(auth_header)
+        header = {"Authorization":auth_header}
         async def response():
            async with httpx.AsyncClient(timeout=60.0) as client:
-            response = await client.post('http://127.0.0.1:9000/chat/', json=payload)
+            response = await client.post('http://127.0.0.1:9000/chat/', json=payload,headers=header)
             return response.json()
         data = asyncio.run(response())
         
@@ -26,12 +29,13 @@ def Chat(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def Upload(request):
+    auth_headers = request.META.get('HTTP_AUTHORIZATION')
     user = request.user
     print(user)
     image = request.FILES['file']
     print("================================ FILE RECIVED ! ==============================")
     print(image.name)
-    # print(image.read())
+
     print(image.content_type)
 
     print('payload Sent ! ')
@@ -43,7 +47,8 @@ def Upload(request):
                 'file_content':b64_content,
                 'file_type':image.content_type
             }
-            response = await client.post('http://127.0.0.1:9000/upload/',json=PAYLOAD)
+            headers = {"Authorization":auth_headers}
+            response = await client.post('http://127.0.0.1:9000/upload/',json=PAYLOAD,headers=headers)
             return response
     response = asyncio.run(upload_image())
 
@@ -56,5 +61,6 @@ def Upload(request):
     
 
     return Response({
-        'message':'uploaded'
+        'message':'uploaded',
+        'url':url
     })
