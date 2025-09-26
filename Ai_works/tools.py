@@ -1,35 +1,74 @@
-import os
-from decouple import config
-from langchain.chat_models import ChatOpenAI
-from langchain.agents import initialize_agent, Tool
-from langchain.agents import AgentType
+"""
 
-# --- Set up your Groq API key for LangChain ---
-GROQ_API_KEY = config("GROQ_API_KEY")
-os.environ["GROQ_API_KEY"] = ''
+        Need a tool to search for the info across web ! 
 
-# --- Initialize the model ---
-model = ChatOpenAI(model="openai/gpt-oss-20b", temperature=0, model_kwargs={"model_provider":"groq"})
+            {https://serper.dev/}
 
-# --- Define your tools ---
-def search_web(query: str) -> str:
-    # Replace with a real search API integration
-    return f"Search results for '{query}' (mocked)."
+"""
 
-def turn_light(on: bool) -> str:
-    state = "on" if on else "off"
-    return f"Turning room light {state}."
+from langchain_core.tools import tool
+from langchain.chat_models import init_chat_model
+import os 
+from dotenv import load_dotenv
+from langchain_core.messages import HumanMessage
 
-tools = [
-    Tool(name="Web Search", func=search_web, description="Search the internet for information."),
-    Tool(name="Turn Light On", func=lambda _: turn_light(True), description="Turns the room light on."),
-    Tool(name="Turn Light Off", func=lambda _: turn_light(False), description="Turns the room light off.")
-]
+load_dotenv()
 
-# --- Initialize the agent ---
-agent = initialize_agent(tools, model, agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION, verbose=True)
+os.environ["LANGSMITH_API_KEY"]
+os.environ["LANGSMITH_WORKSPACE_ID"]
+os.environ["GROQ_API_KEY"] 
 
-# --- Example usage ---
-print(agent.run("Search for the latest AI news"))
-print(agent.run("Turn on the room light"))
-print(agent.run("Hello AI, how are you?"))
+# model = init_chat_model("openai/gpt-oss-120b",model_provider="groq")
+
+@tool(description="Use the tool to search info on the web")
+def search_the_web(q: str) -> dict:
+    """
+    Search for information across the web.
+
+    args:
+        q: query string for the info you want to search
+    """
+    
+    return {
+        "query": q,
+        "result": "Here in Itahari, the current temperature is around 30°C"
+    }
+
+
+
+# # 2️⃣ User message
+# user_message = [HumanMessage(content="What's the current temperature in Itahari?")]
+
+# # 3️⃣ Bind tool to your model
+# tools = [search_the_web]
+# model_with_tool = model.bind_tools(tools)
+
+# # 4️⃣ First call: model decides which tool to use
+# initial_response = model_with_tool.invoke(user_message)
+
+# # 5️⃣ Extract tool call info
+# if initial_response.tool_calls:
+#     tool_call = initial_response.tool_calls[0]
+#     tool_args = tool_call['args']
+#     tool_name = tool_call['name']
+
+#     # Map tool name to function
+#     tool_func = {"search_the_web": search_the_web}[tool_name.lower()]
+    
+#     # Run the tool
+#     tool_result = tool_func.invoke(tool_args)
+    
+#     # 6️⃣ Feed the tool result back to the model
+#     followup_message = [
+#         HumanMessage(content="What's the current temperature in Itahari?"),
+#         HumanMessage(content=f"Tool result: {tool_result}")
+#     ]
+    
+#     final_response = model_with_tool.invoke(followup_message)
+    
+#     # 7️⃣ Print final model output
+#     print("Final response content:", final_response.content)
+
+# else:
+
+#     print("No tool was called. Model output:", initial_response.content)
