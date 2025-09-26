@@ -15,7 +15,7 @@ def Chat(request):
         prompt = request.data.get('prompt')
         auth_header = request.META.get("HTTP_AUTHORIZATION")
         payload = {"prompt": prompt}
-        print(auth_header)
+        # print(auth_header)
         header = {"Authorization":auth_header}
         async def response():
            async with httpx.AsyncClient(timeout=60.0) as client:
@@ -23,7 +23,7 @@ def Chat(request):
             return response.json()
         data = asyncio.run(response())
         
-        return Response({'Message': data.get('response')}, status=status.HTTP_200_OK)
+        return Response({'response': data.get('response')}, status=status.HTTP_200_OK)
 
 
 @api_view(['POST'])
